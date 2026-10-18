@@ -1,0 +1,63 @@
+# Shared by migrate, web and worker, which all run the same image.
+x-app: &app
+  image: leetcode-pattern-trainer
+  pull_policy: never # built locally; there is nothing to pull from Docker Hub
+  env_file:
+    - path: .env
+      required: false
+  # environment wins over env_file. Inside Compose the db is at db:5432.
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.dev
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+  # Only backend/ is mounted, for live reload. Mounting the whole repo would hide
+  # the image's Linux .venv behind the Mac's.
+  volumes:
+    - ./backend:/app/backend
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-trainer}
+      POSTGRES_USER: ${POSTGRES_USER:-trainer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trainer}
+    ports:
+      - "127.0.0.1:5433:5432" # host port 5433, because 5432 is taken on this Mac
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # $$ leaves the variables for the container's shell. -h localhost checks over
+      # TCP, so the socket-only server Postgres runs during first-time setup doesn't count.
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  migrate:
+    <<: *app
+    # The only build, so the image is built once. web and worker run it by name.
+    build: .
+    command: python manage.py migrate
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app
+    command: python manage.py procrastinate worker
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:

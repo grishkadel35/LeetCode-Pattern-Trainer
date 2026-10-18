@@ -1,0 +1,30 @@
+[project]
+name = "leetcode-pattern-trainer"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "django>=5.2,<6",
+    "procrastinate[django]>=3.10,<4",
+    "psycopg[binary]>=3.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-django",
+    "ruff",
+]
+
+[tool.ruff]
+# The Django code imports from backend/ (e.g. `config`), so isort treats those as first-party.
+src = ["backend"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ"]
+# ruff format owns line length. E501 would only flag long strings it can't wrap.
+ignore = ["E501"]
+
+[tool.pytest]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
