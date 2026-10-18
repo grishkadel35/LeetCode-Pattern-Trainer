@@ -7,6 +7,7 @@ A personal, single-user spaced-repetition trainer for LeetCode, organized around
 ## Prerequisites
 
 - Docker with Compose v2.24 or newer, which the optional `.env` file needs (Docker Desktop or Colima).
+- The buildx plugin (BuildKit), which the Dockerfile's cache mount needs. Docker Desktop includes it. With Colima, run `brew install docker-buildx` and register the plugin as its install notes describe.
 - uv (`brew install uv`). On first run, uv downloads Python 3.12 and the dependencies itself.
 
 ## Run the stack
