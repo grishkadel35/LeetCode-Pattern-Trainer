@@ -39,3 +39,9 @@ When summarizing this conversation, keep what the director needs to carry on:
 - Current phase: 0 (Scaffold) change everytime we move on to the nex phase
 - If AGENTS.md and docs/SPEC.md conflict, the spec wins for this project.
 - Checks, from the repo root: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest` (start the db first with `docker compose up -d db`; it listens on localhost:5433).
+
+# Git workflow (user-requested, 2026-10-18)
+
+- Work directly on `main`. No branch per phase.
+- Commit after each verified step of a phase: one commit per step, with a message naming the step. The director commits once the step's checks pass; agents never commit.
+- Never push, and don't open or merge PRs. The user reviews the commits and pushes them.
