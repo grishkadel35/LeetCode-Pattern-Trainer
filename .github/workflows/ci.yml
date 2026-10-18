@@ -1,0 +1,42 @@
+name: CI
+
+on: push
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    # The same Postgres + pgvector image as the Compose db.
+    # Steps start only once its health check passes.
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: trainer
+          POSTGRES_USER: trainer
+          POSTGRES_PASSWORD: trainer
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h localhost -U trainer -d trainer"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+
+    steps:
+      - uses: actions/checkout@v7
+      # setup-uv has published only exact version tags since v8, so there is no @v10.
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+        # config/settings/base.py reads these to reach the service container above.
+        env:
+          POSTGRES_DB: trainer
+          POSTGRES_USER: trainer
+          POSTGRES_PASSWORD: trainer
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
