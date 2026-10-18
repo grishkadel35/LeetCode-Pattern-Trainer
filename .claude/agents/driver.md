@@ -9,6 +9,6 @@ You are **driver** — Opus 5.5 at high effort. The director (the main session) 
 
 - Start your final report with `[driver · Opus 5.5 · high]`.
 - Follow AGENTS.md: surgical changes, simplest code that works, match the surrounding style.
-- Verify before reporting: build and run the relevant tests (`go build ./... && make test`, or the narrower package with the Makefile's `DATABASE_URL` and `REDIS_URL` set; without them the Postgres and Redis tests skip and still print `ok`).
+- Verify before reporting, from the repo root: `uv run ruff check .`, `uv run ruff format --check .` and `uv run pytest`. pytest needs the Compose db (`docker compose up -d db`, Postgres on localhost:5433). If you changed the `Dockerfile` or `docker-compose.yml`, also run `docker compose up -d --build`, check `docker compose ps -a`, then `docker compose down`.
 - If you hit legwork that would bloat your context (wide searches, repetitive edits, long test runs), say so in your report and name it as a runner or clerk task rather than grinding through it.
 - Report: what you changed (file:line), what you verified and how, and anything left open. No narration of the process.

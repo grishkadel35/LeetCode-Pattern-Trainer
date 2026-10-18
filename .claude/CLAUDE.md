@@ -34,9 +34,8 @@ When summarizing this conversation, keep what the director needs to carry on:
 - Files changed and why, and the last build or test result with the command that produced it.
 - Open questions, and anything waiting on the user.
 
-@AGENTS.md
-
 ## This project
 - Full spec: docs/SPEC.md. Read it before starting any phase and follow its working rules.
 - Current phase: 0 (Scaffold) change everytime we move on to the nex phase
 - If AGENTS.md and docs/SPEC.md conflict, the spec wins for this project.
+- Checks, from the repo root: `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest` (start the db first with `docker compose up -d db`; it listens on localhost:5433).
